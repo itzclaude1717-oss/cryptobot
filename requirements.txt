@@ -1,0 +1,5 @@
+tweepy
+openai
+requests
+schedule
+feedparser
