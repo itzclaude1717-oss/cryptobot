@@ -1,6 +1,5 @@
-# XRP Bot - final deploy
-tweepy
-openai
-requests
-schedule
-feedparser
+tweepy==4.14.0
+openai==1.30.0
+requests==2.31.0
+schedule==1.2.1
+feedparser==6.0.11
