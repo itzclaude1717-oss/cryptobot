@@ -688,4 +688,62 @@ def xrpl_alpha():
 def run_scheduler():
     global MY_USER_ID
 
-    print
+    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M')}] XRPL Daily Bot starting...", flush=True)
+    print("=" * 60, flush=True)
+
+    # ── 1. Get own user ID ──────────────────────────────────────
+    MY_USER_ID = get_my_user_id()
+    if MY_USER_ID:
+        print(f"User ID confirmed: {MY_USER_ID}")
+    else:
+        print("WARNING: Could not get user ID — engagement features disabled.")
+
+    # ── 2. Brand the profile ────────────────────────────────────
+    setup_xrp_profile()
+
+    # ── 3. Follow XRP influencers immediately ───────────────────
+    follow_xrp_influencers_on_startup()
+
+    # ── 4. Post + pin intro tweet ───────────────────────────────
+    pin_intro_tweet()
+
+    # ── 5. CONTENT SCHEDULE ─────────────────────────────────────
+    schedule.every().day.at("07:00").do(morning_xrp_prices)
+    schedule.every().day.at("09:00").do(xrp_news_morning)
+    schedule.every().day.at("11:00").do(xrp_community_engagement)
+    schedule.every().day.at("13:00").do(midday_xrp_update)
+    schedule.every().day.at("15:00").do(xrp_news_afternoon)
+    schedule.every().day.at("17:00").do(xrpl_education)
+    schedule.every().day.at("20:00").do(xrp_market_commentary)
+    schedule.every().day.at("22:00").do(xrpl_alpha)
+
+    # ── 6. ENGAGEMENT SCHEDULE ──────────────────────────────────
+    schedule.every(45).minutes.do(engage_with_top_xrp_content)
+    schedule.every(2).hours.do(engage_with_xrp_influencers)
+    schedule.every(1).hours.do(like_top_xrp_content)
+    schedule.every(30).minutes.do(reply_to_mentions)
+    schedule.every(1).hours.do(follow_back_followers)
+    schedule.every(3).hours.do(strategic_follow_xrp_community)
+
+    print("\nSchedule active:", flush=True)
+    print("  Content: 7am 9am 11am 1pm 3pm 5pm 8pm 10pm", flush=True)
+    print("  Engage top XRP tweets: every 45 min", flush=True)
+    print("  Engage influencers:    every 2 hrs", flush=True)
+    print("  Like XRP content:      every 1 hr", flush=True)
+    print("  Reply to mentions:     every 30 min", flush=True)
+    print("  Follow-back:           every 1 hr", flush=True)
+    print("  Strategic follows:     every 3 hrs", flush=True)
+    print("=" * 60, flush=True)
+    print("Bot is now running. Waiting for scheduled tasks...", flush=True)
+
+    tick = 0
+    while True:
+        schedule.run_pending()
+        tick += 1
+        if tick % 60 == 0:
+            print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M')}] Heartbeat — bot alive, waiting for next task.", flush=True)
+        time.sleep(30)
+
+
+if __name__ == "__main__":
+    run_scheduler()
