@@ -1,3 +1,4 @@
+# XRP Bot v2 - Full XRPL automation
 tweepy
 openai
 requests
