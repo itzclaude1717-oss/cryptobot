@@ -1,4 +1,4 @@
-# XRP Bot v2 - Full XRPL automation
+# XRP Bot v3 - env vars confirmed
 tweepy
 openai
 requests
