@@ -1,4 +1,4 @@
-# XRP Bot v3 - env vars confirmed
+# XRP Bot - final deploy
 tweepy
 openai
 requests
