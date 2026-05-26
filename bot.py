@@ -69,25 +69,35 @@ XRP_KEYWORDS = [
 ]
 
 # === HIGH-PROFILE XRP/XRPL ACCOUNTS ===
+# Top-tier: official accounts & founders
 TARGET_XRP_ACCOUNTS = [
-    "Ripple",
-    "bgarlinghouse",
-    "JoelKatz",
-    "RippleXDev",
-    "xrpl_org",
-    "WietseWind",
-    "DigPerspectives",
-    "moon__lambo",
-    "XRPcryptowolf",
-    "sentosumosaba",
-    "Linqto_official",
-    "CryptoEri",
-    "GiantGox",
-    "XRP_Updates",
-    "XRP_Healthcare",
-    "zerpening",
-    "Hodor_XRP",
-    "TplusZero",
+    "Ripple",           # Official Ripple account
+    "bgarlinghouse",    # Brad Garlinghouse â Ripple CEO
+    "JoelKatz",         # David Schwartz â Ripple CTO/Chief Cryptographer
+    "RippleXDev",       # Ripple developer relations
+    "xrpl_org",         # XRPL Foundation
+    "WietseWind",       # Creator of Xaman (XUMM) wallet â top XRPL builder
+    # Major influencers & analysts
+    "JackTheRippler",   # One of the most followed XRP voices
+    "DigPerspectives",  # Digital Perspectives â daily XRP news
+    "CryptoEri",        # Crypto Eri â major XRP YouTuber/commentator
+    "WrathofKahneman",  # Top XRP/crypto market analyst
+    "moon__lambo",      # XRP community content creator
+    "GiantGox",         # XRP community influencer
+    "XRPcryptowolf",    # XRP community account
+    "sentosumosaba",    # XRP influencer
+    "zerpening",        # XRP community hub
+    "TplusZero",        # XRP analysis & commentary
+    "XRP_Updates",      # XRP news aggregator
+    "Hodor_XRP",        # Long-running XRP blogger/account
+    # Ecosystem builders
+    "Leonidas_io",      # XRPL NFT ecosystem leader
+    "nbougalis",        # Nik Bougalis â former Ripple lead engineer
+    "drmichellelapointe", # XRPL researcher/commentator
+    "CryptoInsider21",  # XRPL ecosystem coverage
+    "Pro_XRPL",         # XRPL ecosystem account
+    "XRPHealthcare",    # XRP real-world use-case account
+    "Linqto_official",  # Linqto â private equity, XRP-adjacent
 ]
 
 # === STATE TRACKING ===
@@ -102,13 +112,45 @@ MY_USER_ID         = None
 #  UTILITIES
 # ================================================================
 
+def check_auth():
+    """
+    Validate Twitter credentials at startup.
+    If tokens are bad, print clear instructions â don't spam 401 errors.
+    """
+    try:
+        me = api_v1.verify_credentials()
+        print(f"â Auth OK â logged in as @{me.screen_name} (ID: {me.id})")
+        return me.id
+    except tweepy.errors.Unauthorized as e:
+        print("=" * 60)
+        print("AUTH ERROR: Twitter access tokens are invalid (401/89).")
+        print("To fix this:")
+        print("  1. Go to https://developer.twitter.com/en/portal/projects-and-apps")
+        print("  2. Open your app â Settings â User authentication settings")
+        print("  3. Make sure 'Read and Write' permissions are enabled")
+        print("  4. Go to 'Keys and Tokens' tab")
+        print("  5. Regenerate 'Access Token and Secret'")
+        print("  6. In Railway: update TWITTER_ACCESS_TOKEN and")
+        print("     TWITTER_ACCESS_TOKEN_SECRET with the new values")
+        print("  7. Redeploy the service")
+        print("=" * 60)
+        return None
+    except Exception as e:
+        print(f"Auth check error: {e}")
+        return None
+
+
 def get_my_user_id():
     try:
-        me = client.get_me()
-        return me.data.id
-    except Exception as e:
-        print(f"Error getting user ID: {e}")
-        return None
+        me = api_v1.verify_credentials()
+        return me.id
+    except Exception:
+        try:
+            me = client.get_me()
+            return me.data.id
+        except Exception as e:
+            print(f"Error getting user ID: {e}")
+            return None
 
 
 def get_xrp_news():
@@ -231,7 +273,7 @@ def pin_intro_tweet():
             if result and result.data:
                 tweet_id = result.data["id"]
                 # Pin it
-                client.pin_tweet(tweet_id)
+                client.pin_tweet(tweet_id	
                 print(f"Intro tweet posted and pinned: {tweet_id}")
     except Exception as e:
         print(f"Pin tweet error: {e}")
@@ -241,22 +283,58 @@ def pin_intro_tweet():
 #  FOLLOW STRATEGY
 # ================================================================
 
+def _follow_user_by_username(username):
+    """
+    Follow a user by username. Tries v1.1 first (more permissive),
+    falls back to v2. Returns True on success.
+    """
+    try:
+        api_v1.create_friendship(screen_name=username)
+        return True
+    except tweepy.errors.Unauthorized:
+        raise  # Auth is broken â caller handles this
+    except tweepy.errors.Forbidden:
+        return False  # Already following or blocked
+    except Exception:
+        pass
+    # v2 fallback
+    try:
+        user = client.get_user(username=username)
+        if user.data:
+            client.follow_user(user.data.id)
+            followed_users.add(user.data.id)
+            return True
+    except Exception:
+        pass
+    return False
+
+
 def follow_xrp_influencers_on_startup():
     """
     Proactively follow all target XRP influencer accounts on startup.
     Gets us into their follower notifications immediately.
     """
+    global MY_USER_ID
+    if not MY_USER_ID:
+        print("Skipping influencer follows â auth tokens invalid. See startup message above.")
+        return
     print("Following XRP influencer accounts...")
     followed_count = 0
+    auth_broken = False
     for username in TARGET_XRP_ACCOUNTS:
+        if auth_broken:
+            break
         try:
-            user = client.get_user(username=username)
-            if user.data:
-                client.follow_user(user.data.id)
-                followed_users.add(user.data.id)
+            success = _follow_user_by_username(username)
+            if success:
                 followed_count += 1
-                print(f"  Followed @{username}")
-                time.sleep(3)  # Avoid rate limit bursts
+                print(f"  â Followed @{username}")
+                time.sleep(3)
+            else:
+                print(f"  â Already following @{username}")
+        except tweepy.errors.Unauthorized:
+            print("  Auth tokens invalid â skipping all follows. Regenerate tokens in Railway.")
+            auth_broken = True
         except Exception as e:
             print(f"  Could not follow @{username}: {e}")
     print(f"Startup follow complete: {followed_count} XRP accounts followed.")
@@ -275,10 +353,14 @@ def follow_back_followers():
         for follower in followers.data:
             if follower.id not in followed_users:
                 try:
-                    client.follow_user(follower.id)
-                    followed_users.add(follower.id)
-                    new_follows += 1
-                    time.sleep(2)
+                    user_info = client.get_user(id=follower.id)
+                    if user_info.data:
+                        _follow_user_by_username(user_info.data.username)
+                        followed_users.add(follower.id)
+                        new_follows += 1
+                        time.sleep(2)
+                except tweepy.errors.Unauthorized:
+                    return  # tokens broken, stop silently
                 except Exception as e:
                     print(f"Follow-back error: {e}")
         if new_follows > 0:
@@ -309,12 +391,16 @@ def strategic_follow_xrp_community():
             if (author_id not in followed_users
                     and str(author_id) != str(MY_USER_ID)):
                 try:
-                    client.follow_user(author_id)
-                    followed_users.add(author_id)
-                    followed_count += 1
-                    time.sleep(3)
-                    if followed_count >= 5:  # Cap per run to stay safe
-                        break
+                    user_info = client.get_user(id=author_id)
+                    if user_info.data:
+                        _follow_user_by_username(user_info.data.username)
+                        followed_users.add(author_id)
+                        followed_count += 1
+                        time.sleep(3)
+                        if followed_count >= 5:
+                            break
+                except tweepy.errors.Unauthorized:
+                    return  # tokens broken, stop silently
                 except Exception as e:
                     print(f"Strategic follow error: {e}")
 
@@ -521,7 +607,7 @@ def reply_to_mentions():
 
         for mention in sorted_mentions:
             prompt = (
-                f"Someone replied to your XRP tweet: '{mention.text}'. "
+                f"Someone replied to your XRP tweet: '{mention.text}'. "
                 f"Write a knowledgeable, genuine reply under 235 chars. "
                 f"Add insight they didn't have. Don't start with 'Great question'."
             )
@@ -618,7 +704,7 @@ def xrp_news_afternoon():
     if not articles:
         prompt = (
             "Write a tweet about Ripple's expanding ODL corridors and what it means for "
-            "real XRP utility and price support. Be specific â game a region or corridor."
+            "real XRP utility and price support. Be specific â name a region or corridor."
         )
     else:
         article = random.choice(articles)
@@ -696,12 +782,12 @@ def run_scheduler():
     print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M')}] XRPL Daily Bot starting...", flush=True)
     print("=" * 60, flush=True)
 
-    # ââ 1. Get own user ID ââââââââââââââââââââââââââââââââââââââ
-    MY_USER_ID = get_my_user_id()
+    # ââ 1. Verify auth + get own user ID âââââââââââââââââââââââ
+    MY_USER_ID = check_auth()
     if MY_USER_ID:
-        print(f"User ID confirmed: {MY_USER_ID}")
+        print(f"â User ID confirmed: {MY_USER_ID}")
     else:
-        print("WARNING: Could not get user ID â engagement features disabled.")
+        print("WARNING: Auth failed â follows/mentions/likes disabled until tokens are fixed.")
 
     # ââ 2. Brand the profile ââââââââââââââââââââââââââââââââââââ
     setup_xrp_profile()
