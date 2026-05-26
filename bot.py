@@ -24,7 +24,7 @@ _gpt_client = OpenAI(
     http_client=httpx.Client(trust_env=False)
 )
 
-# v2 client â posting, search, engagement
+# v2 client -- posting, search, engagement
 client = tweepy.Client(
     bearer_token=TWITTER_BEARER_TOKEN,
     consumer_key=TWITTER_API_KEY,
@@ -34,7 +34,7 @@ client = tweepy.Client(
     wait_on_rate_limit=True
 )
 
-# v1.1 API â profile updates, profile image
+# v1.1 API -- profile updates, profile image
 auth_v1 = tweepy.OAuth1UserHandler(
     TWITTER_API_KEY, TWITTER_API_SECRET,
     TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_TOKEN_SECRET
@@ -48,7 +48,7 @@ BOT_BIO         = (
     "NFTs on the XRP Ledger & real alpha. "
     "The future of finance runs on XRPL. #XRP #XRPL"
 )
-BOT_LOCATION    = "XRP Ledger ð"
+BOT_LOCATION    = "XRP Ledger "
 
 # === XRP/XRPL FOCUSED RSS FEEDS ===
 RSS_FEEDS = [
@@ -72,16 +72,16 @@ XRP_KEYWORDS = [
 # Top-tier: official accounts & founders
 TARGET_XRP_ACCOUNTS = [
     "Ripple",           # Official Ripple account
-    "bgarlinghouse",    # Brad Garlinghouse â Ripple CEO
-    "JoelKatz",         # David Schwartz â Ripple CTO/Chief Cryptographer
+    "bgarlinghouse",    # Brad Garlinghouse -- Ripple CEO
+    "JoelKatz",         # David Schwartz -- Ripple CTO/Chief Cryptographer
     "RippleXDev",       # Ripple developer relations
     "xrpl_org",         # XRPL Foundation
-    "WietseWind",       # Creator of Xaman (XUMM) wallet â top XRPL builder
+    "WietseWind",       # Creator of Xaman (XUMM) wallet -- top XRPL builder
     # Major influencers & analysts
     "JackTheRippler",   # One of the most followed XRP voices
-    "DigPerspectives",  # Digital Perspectives â daily XRP news
-    "CryptoEri",        # Crypto Eri â major XRP YouTuber/commentator
-    "WrathofKahneman",  # Top XRP/crypto market analyst
+    "DigPerspectives",  # Digital Perspectives -- daily XRP news
+    "CryptoEri",        # Crypto Eri -- major XRP YouTuber/commentator
+    "WrathofKalneman",  # Top XRP/crypto market analyst
     "moon__lambo",      # XRP community content creator
     "GiantGox",         # XRP community influencer
     "XRPcryptowolf",    # XRP community account
@@ -92,12 +92,12 @@ TARGET_XRP_ACCOUNTS = [
     "Hodor_XRP",        # Long-running XRP blogger/account
     # Ecosystem builders
     "Leonidas_io",      # XRPL NFT ecosystem leader
-    "nbougalis",        # Nik Bougalis â former Ripple lead engineer
+    "nbougalis",        # Nik Bougalis -- former Ripple lead engineer
     "drmichellelapointe", # XRPL researcher/commentator
     "CryptoInsider21",  # XRPL ecosystem coverage
     "Pro_XRPL",         # XRPL ecosystem account
     "XRPHealthcare",    # XRP real-world use-case account
-    "Linqto_official",  # Linqto â private equity, XRP-adjacent
+    "Linqto_official",  # Linqto -- private equity, XRP-adjacent
 ]
 
 # === STATE TRACKING ===
@@ -115,18 +115,18 @@ MY_USER_ID         = None
 def check_auth():
     """
     Validate Twitter credentials at startup.
-    If tokens are bad, print clear instructions â don't spam 401 errors.
+    If tokens are bad, print clear instructions -- don't spam 401 errors.
     """
     try:
         me = api_v1.verify_credentials()
-        print(f"â Auth OK â logged in as @{me.screen_name} (ID: {me.id})")
+        print(f"OK Auth OK -- logged in as @{me.screen_name} (ID: {me.id})")
         return me.id
     except tweepy.errors.Unauthorized as e:
         print("=" * 60)
         print("AUTH ERROR: Twitter access tokens are invalid (401/89).")
         print("To fix this:")
         print("  1. Go to https://developer.twitter.com/en/portal/projects-and-apps")
-        print("  2. Open your app â Settings â User authentication settings")
+        print("  2. Open your app -> Settings -> User authentication settings")
         print("  3. Make sure 'Read and Write' permissions are enabled")
         print("  4. Go to 'Keys and Tokens' tab")
         print("  5. Regenerate 'Access Token and Secret'")
@@ -197,14 +197,14 @@ def ask_gpt(prompt, max_tokens=280):
                 {
                     "role": "system",
                     "content": (
-                        "You are XRPL Daily â a sharp, credible XRP and XRPL expert account on Twitter/X. "
+                        "You are XRPL Daily -- a sharp, credible XRP and XRPL expert account on Twitter/X. "
                         "You deeply understand: XRP Ledger consensus (RPCA), XRPL NFTs (XLS-20), "
                         "XRPL AMM (XLS-30), Ripple ODL cross-border payments, XRPL DEX, "
                         "CBDC infrastructure, SEC vs Ripple legal history, Hooks smart contracts, "
                         "RWA tokenization on XRPL (Ondo Finance etc.), and XRPL DeFi. "
                         "Your goal is to grow a massive XRP following by making bold, accurate calls "
                         "and dropping insight the community actually values. "
-                        "Tweet style: punchy, confident, credible â under 260 characters. "
+                        "Tweet style: punchy, confident, credible -- under 260 characters. "
                         "Emojis: relevant and tasteful. Hashtags: max 2-3 from "
                         "#XRP #XRPL #Ripple #XRPCommunity #XRPLNFT #XRPArmy #Web3 #Crypto. "
                         "Never hedge everything. Make real calls. Never say 'As an AI'."
@@ -224,7 +224,7 @@ def ask_gpt(prompt, max_tokens=280):
 def post_tweet(text, reply_to_id=None):
     try:
         if not text or len(text) > 280:
-            print(f"Tweet skipped â {len(text) if text else 0} chars")
+            print(f"Tweet skipped -- {len(text) if text else 0} chars")
             return None
         if reply_to_id:
             result = client.create_tweet(text=text, in_reply_to_tweet_id=reply_to_id)
@@ -238,7 +238,7 @@ def post_tweet(text, reply_to_id=None):
 
 
 # ================================================================
-#  BRANDING â runs once at startup
+#  BRANDING -- runs once at startup
 # ================================================================
 
 def setup_xrp_profile():
@@ -273,7 +273,7 @@ def pin_intro_tweet():
             if result and result.data:
                 tweet_id = result.data["id"]
                 # Pin it
-                client.pin_tweet(tweet_id	
+                client.pin_tweet(tweet_id)
                 print(f"Intro tweet posted and pinned: {tweet_id}")
     except Exception as e:
         print(f"Pin tweet error: {e}")
@@ -292,7 +292,7 @@ def _follow_user_by_username(username):
         api_v1.create_friendship(screen_name=username)
         return True
     except tweepy.errors.Unauthorized:
-        raise  # Auth is broken â caller handles this
+        raise  # Auth is broken -- caller handles this
     except tweepy.errors.Forbidden:
         return False  # Already following or blocked
     except Exception:
@@ -316,7 +316,7 @@ def follow_xrp_influencers_on_startup():
     """
     global MY_USER_ID
     if not MY_USER_ID:
-        print("Skipping influencer follows â auth tokens invalid. See startup message above.")
+        print("Skipping influencer follows -- auth tokens invalid. See startup message above.")
         return
     print("Following XRP influencer accounts...")
     followed_count = 0
@@ -328,12 +328,12 @@ def follow_xrp_influencers_on_startup():
             success = _follow_user_by_username(username)
             if success:
                 followed_count += 1
-                print(f"  â Followed @{username}")
+                print(f"  OK Followed @{username}")
                 time.sleep(3)
             else:
-                print(f"  â Already following @{username}")
+                print(f"  -- Already following @{username}")
         except tweepy.errors.Unauthorized:
-            print("  Auth tokens invalid â skipping all follows. Regenerate tokens in Railway.")
+            print("  Auth tokens invalid -- skipping all follows. Regenerate tokens in Railway.")
             auth_broken = True
         except Exception as e:
             print(f"  Could not follow @{username}: {e}")
@@ -372,7 +372,7 @@ def follow_back_followers():
 def strategic_follow_xrp_community():
     """
     Follow people who are actively engaging with XRP content.
-    These are warm leads â they're already in the community and likely to follow back.
+    These are warm leads -- they're already in the community and likely to follow back.
     """
     global MY_USER_ID
     try:
@@ -411,13 +411,13 @@ def strategic_follow_xrp_community():
 
 
 # ================================================================
-#  ENGAGEMENT ENGINE â the follower growth core
+#  ENGAGEMENT ENGINE -- the follower growth core
 # ================================================================
 
 def engage_with_top_xrp_content():
     """
     Find the highest-engagement XRP tweets and drop a sharp reply.
-    Your reply appears under viral XRP content â millions of eyeballs.
+    Your reply appears under viral XRP content -- millions of eyeballs.
     """
     global engaged_tweet_ids, MY_USER_ID
     try:
@@ -512,7 +512,7 @@ def engage_with_xrp_influencers():
             likes = best.public_metrics.get("like_count", 0)
             prompt = (
                 f"@{username} tweeted: '{best.text}' ({likes} likes). "
-                f"Write a reply under 235 chars that adds genuine insight â "
+                f"Write a reply under 235 chars that adds genuine insight -- "
                 f"a fact, a sharper take, or a real XRPL detail their audience will value. "
                 f"Sound like a knowledgeable peer, not a fan."
             )
@@ -534,7 +534,7 @@ def engage_with_xrp_influencers():
 def like_top_xrp_content():
     """
     Like high-engagement XRP tweets.
-    Liking puts your account name in the author's notifications â
+    Liking puts your account name in the author's notifications --
     repeated likes build recognition and often earn a follow-back.
     """
     global liked_tweet_ids, MY_USER_ID
@@ -607,7 +607,7 @@ def reply_to_mentions():
 
         for mention in sorted_mentions:
             prompt = (
-                f"Someone replied to your XRP tweet: '{mention.text}'. "
+                f"Someone replied to your XRP tweet: '{mention.text}'. "
                 f"Write a knowledgeable, genuine reply under 235 chars. "
                 f"Add insight they didn't have. Don't start with 'Great question'."
             )
@@ -638,7 +638,7 @@ def morning_xrp_prices():
     prompt = (
         f"Morning XRP market briefing. Data: XRP=${xrp_p:.4f} ({xrp_chg:+.1f}% 24h), "
         f"Market cap ${xrp_mcap/1e9:.1f}B. BTC {btc_chg:+.1f}% today. "
-        f"Write a sharp morning update â include a brief take on what the price action signals."
+        f"Write a sharp morning update -- include a brief take on what the price action signals."
     )
     tweet = ask_gpt(prompt)
     if tweet:
@@ -650,14 +650,14 @@ def xrp_news_morning():
     if not articles:
         prompt = (
             "Write a tweet about why XRP is uniquely positioned to win the global payment "
-            "infrastructure race â mention ODL, bank adoption, or CBDC partnerships specifically."
+            "infrastructure race -- mention ODL, bank adoption, or CBDC partnerships specifically."
         )
     else:
         article = articles[0]
         prompt = (
             f"XRP/XRPL news: '{article['title']}'. "
-            f"Write a tweet with an honest expert take â what does this actually mean "
-            f"for XRP holders? Be direct. Make a call â bullish, bearish, or neutral and why."
+            f"Write a tweet with an honest expert take -- what does this actually mean "
+            f"for XRP holders? Be direct. Make a call -- bullish, bearish, or neutral and why."
         )
     tweet = ask_gpt(prompt)
     if tweet:
@@ -666,11 +666,11 @@ def xrp_news_morning():
 
 def xrp_community_engagement():
     topics = [
-        "Ask the XRP community: What's your realistic XRP price target this cycle? Give your reasoning â no moon math.",
-        "Write a tweet asking: Which XRP/XRPL development excites you most right now â XRPL AMM, Hooks, RWA tokenization, or CBDC rails?",
+        "Ask the XRP community: What's your realistic XRP price target this cycle? Give your reasoning -- no moon math.",
+        "Write a tweet asking: Which XRP/XRPL development excites you most right now -- XRPL AMM, Hooks, RWA tokenization, or CBDC rails?",
         "Ask: How long have you held XRP and what was your entry? Let the community share their stories.",
         "Write a tweet: Do you think XRPL DeFi (AMM + DEX + Hooks) will pull liquidity away from Ethereum? Make your case.",
-        "Ask the XRP army: What's the one catalyst that sends XRP past $5 â ETF, Ripple IPO, or mass bank ODL adoption?",
+        "Ask the XRP army: What's the one catalyst that sends XRP past $5 -- ETF, Ripple IPO, or mass bank ODL adoption?",
         "Write a tweet: Are you adding XRP at current levels or waiting? What's your actual strategy?",
         "Ask: What XRPL ecosystem project besides Ripple itself are you most bullish on right now?",
         "Write: If XRP captures even 10% of the $150T cross-border payment market, what does that mean for price? Let's do the math.",
@@ -704,13 +704,13 @@ def xrp_news_afternoon():
     if not articles:
         prompt = (
             "Write a tweet about Ripple's expanding ODL corridors and what it means for "
-            "real XRP utility and price support. Be specific â name a region or corridor."
+            "real XRP utility and price support. Be specific -- name a region or corridor."
         )
     else:
         article = random.choice(articles)
         prompt = (
             f"Breaking XRP/XRPL news: '{article['title']}'. "
-            f"Write a hot take tweet â is this bullish, bearish, or neutral for XRP? "
+            f"Write a hot take tweet -- is this bullish, bearish, or neutral for XRP? "
             f"Give one specific reason. Don't hedge. Make the call."
         )
     tweet = ask_gpt(prompt)
@@ -720,15 +720,15 @@ def xrp_news_afternoon():
 
 def xrpl_education():
     topics = [
-        "Explain what the XRP Ledger consensus (RPCA) is and why it settles in 3-5 seconds with near-zero fees â far better than ETH for payments.",
-        "Write a tweet explaining XRPL NFTs (XLS-20) â why minting on XRPL costs fractions of a cent vs hundreds on Ethereum.",
-        "Explain Ripple ODL â how XRP acts as a real-time bridge currency between fiat corridors. Give a specific payment example.",
-        "Write a tweet on the XRPL AMM (XLS-30) â what DeFi it unlocks on the XRP Ledger and why it matters for liquidity.",
+        "Explain what the XRP Ledger consensus (RPCA) is and why it settles in 3-5 seconds with near-zero fees -- far better than ETH for payments.",
+        "Write a tweet explaining XRPL NFTs (XLS-20) -- why minting on XRPL costs fractions of a cent vs hundreds on Ethereum.",
+        "Explain Ripple ODL -- how XRP acts as a real-time bridge currency between fiat corridors. Give a specific payment example.",
+        "Write a tweet on the XRPL AMM (XLS-30) -- what DeFi it unlocks on the XRP Ledger and why it matters for liquidity.",
         "Explain the Ripple vs SEC ruling and what legal clarity means for XRP listings on US exchanges.",
-        "Write a tweet on the XRPL DEX â a built-in decentralized exchange directly on the ledger. Why is this a big deal?",
+        "Write a tweet on the XRPL DEX -- a built-in decentralized exchange directly on the ledger. Why is this a big deal?",
         "Explain how the XRP Ledger is being used for CBDC infrastructure. Name real country/central bank examples.",
-        "Write a tweet on Ondo Finance bringing tokenized US Treasuries to XRPL â why institutions care about this.",
-        "Explain XRPL Hooks â the upcoming smart contract layer on XRP Ledger and what it will allow developers to build.",
+        "Write a tweet on Ondo Finance bringing tokenized US Treasuries to XRPL -- why institutions care about this.",
+        "Explain XRPL Hooks -- the upcoming smart contract layer on XRP Ledger and what it will allow developers to build.",
         "Write a tweet: XRP has been burning ~0.00001 XRP per transaction since 2013. With billions of transactions, what does that mean for supply?",
     ]
     tweet = ask_gpt(random.choice(topics))
@@ -747,7 +747,7 @@ def xrp_market_commentary():
         f"Evening XRP analysis. XRP=${xrp_p:.4f} ({xrp_chg:+.1f}% today). "
         f"Context: {news_ctx}. "
         f"Write a confident, specific market commentary tweet. "
-        f"Make a call or observation â where is XRP likely heading and why? Build credibility."
+        f"Make a call or observation -- where is XRP likely heading and why? Build credibility."
     )
     tweet = ask_gpt(prompt)
     if tweet:
@@ -756,11 +756,11 @@ def xrp_market_commentary():
 
 def xrpl_alpha():
     insights = [
-        "Share a contrarian XRP take most people dismiss â back it with a specific fact or on-chain data point.",
-        "Write a tweet spotlighting an underrated XRPL ecosystem project or development. Be specific â name it.",
-        "Share your honest bull case for XRP over the next 12-18 months. Not hype â actual catalysts with specifics.",
+        "Share a contrarian XRP take most people dismiss -- back it with a specific fact or on-chain data point.",
+        "Write a tweet spotlighting an underrated XRPL ecosystem project or development. Be specific -- name it.",
+        "Share your honest bull case for XRP over the next 12-18 months. Not hype -- actual catalysts with specifics.",
         "Write a tweet on the biggest XRP catalyst being ignored by mainstream crypto Twitter right now.",
-        "Share something specific about XRPL NFTs that most crypto people don't know â a feature, stat, or project.",
+        "Share something specific about XRPL NFTs that most crypto people don't know -- a feature, stat, or project.",
         "Write a tweet: what does a spot XRP ETF approval actually do to XRP price and adoption? Make a real projection.",
         "Share an insight on how RWA tokenization on XRPL could bring trillions in TradFi value onto the ledger.",
         "Write a tweet: if Ripple goes public via IPO, what specifically happens to XRP credibility and price? Make the case.",
@@ -782,23 +782,23 @@ def run_scheduler():
     print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M')}] XRPL Daily Bot starting...", flush=True)
     print("=" * 60, flush=True)
 
-    # ââ 1. Verify auth + get own user ID âââââââââââââââââââââââ
+    # -- 1. Verify auth + get own user ID -----------------------
     MY_USER_ID = check_auth()
     if MY_USER_ID:
-        print(f"â User ID confirmed: {MY_USER_ID}")
+        print(f"OK User ID confirmed: {MY_USER_ID}")
     else:
-        print("WARNING: Auth failed â follows/mentions/likes disabled until tokens are fixed.")
+        print("WARNING: Auth failed -- follows/mentions/likes disabled until tokens are fixed.")
 
-    # ââ 2. Brand the profile ââââââââââââââââââââââââââââââââââââ
+    # -- 2. Brand the profile ------------------------------------
     setup_xrp_profile()
 
-    # ââ 3. Follow XRP influencers immediately âââââââââââââââââââ
+    # -- 3. Follow XRP influencers immediately -------------------
     follow_xrp_influencers_on_startup()
 
-    # ââ 4. Post + pin intro tweet âââââââââââââââââââââââââââââââ
+    # -- 4. Post + pin intro tweet -------------------------------
     pin_intro_tweet()
 
-    # ââ 5. CONTENT SCHEDULE âââââââââââââââââââââââââââââââââââââ
+    # -- 5. CONTENT SCHEDULE -------------------------------------
     schedule.every().day.at("07:00").do(morning_xrp_prices)
     schedule.every().day.at("09:00").do(xrp_news_morning)
     schedule.every().day.at("11:00").do(xrp_community_engagement)
@@ -808,8 +808,8 @@ def run_scheduler():
     schedule.every().day.at("20:00").do(xrp_market_commentary)
     schedule.every().day.at("22:00").do(xrpl_alpha)
 
-    # ââ 6. ENGAGEMENT SCHEDULE ââââââââââââââââââââââââââââââââââ
-    # Reply under viral XRP tweets â biggest follower-growth lever
+    # -- 6. ENGAGEMENT SCHEDULE ----------------------------------
+    # Reply under viral XRP tweets -- biggest follower-growth lever
     schedule.every(45).minutes.do(engage_with_top_xrp_content)
     # Reply to influencer tweets (Garlinghouse, JoelKatz, etc.)
     schedule.every(2).hours.do(engage_with_xrp_influencers)
@@ -838,7 +838,7 @@ def run_scheduler():
         schedule.run_pending()
         tick += 1
         if tick % 60 == 0:  # every 30 minutes (60 * 30s)
-            print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M')}] Heartbeat â bot alive, waiting for next task.", flush=True)
+            print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M')}] Heartbeat -- bot alive, waiting for next task.", flush=True)
         time.sleep(30)
 
 
